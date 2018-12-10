@@ -35,7 +35,7 @@ var estadoActual = function(){
     //parametro interval modificado hace que el juego vaya mas rapido*.
     //var corre = setInterval(jugar, this.interval);
     
-    iniciarJuego: function(){
+    /*iniciarJuego: function(){
         
     }
     calcSigPieza: function(){
@@ -46,7 +46,109 @@ var estadoActual = function(){
     }
     mAuto: function(interval){
         
-    }
-    
-    
+    } */ 
 }
+
+var pieza = function(forma, color){ 
+    this.forma = forma;
+    this.color = color;
+    //this.x = x;  
+    //this.y = y;
+};
+
+pieza.prototype.pintar = function(){
+    var resultat = "<table border='1'>";
+           for (var i = 0; i < this.forma.length;i++)
+            { resultat = resultat + "<tr>"
+                for (var j = 0; j<this.forma[i].length;j++) 
+                 { resultat = resultat + "<td>";
+                   if (this.forma[i][j]==1) { resultat=resultat+"X" }
+                    else { resultat = resultat + "-" };
+                   resultat = resultat + "</td>";
+                   }
+              resultat = resultat + "</tr>";
+              }
+            resultat = resultat + "</table>";
+            return resultat;
+};              
+
+function GeneraPecaAleatoria(){
+    var peces = [
+                 [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],"amarilla"],
+                 [[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],"lila"],
+                 [[[0,0,0,0],[0,1,1,0],[1,1,0,0],[0,0,0,0]],"verde"],
+                 [[[0,0,0,0],[0,1,1,0],[0,0,1,1],[0,0,0,0]],"rojo"],
+                 [[[0,1,0,0],[0,1,0,0],[0,1,1,0],[0,0,0,0]],"azul"],
+                 [[[0,1,1,0],[0,1,0,0],[0,1,0,0],[0,0,0,0]],"naranja"],
+                 [[[0,0,0,0],[1,1,1,0],[0,1,0,0],[0,0,0,0]],"morado"] ]
+           var numeroAleatori = Math.round(Math.random()*6);                      
+           return peces[numeroAleatori];     
+}
+
+console.log(GeneraPecaAleatoria());
+//Funcion que hereda el objeto "pieza" para generar una tabla a partir de haber generado una pieza aleatoria con la funcion "GeneraPecaAleatoria()".
+       pieza.prototype.pintar = function()
+         { var resultat = "<table border='1'>";
+           for (var i = 0; i < this.forma.length;i++)
+            { resultat = resultat + "<tr>"
+                for (var j = 0; j<this.forma[i].length;j++) 
+                 { resultat = resultat + "<td>";
+                   if (this.forma[i][j]==1) { resultat=resultat+"X" }
+                    else { resultat = resultat + "-" };
+                   resultat = resultat + "</td>";
+                   }
+              resultat = resultat + "</tr>";
+              }
+            resultat = resultat + "</table>";
+            return resultat;
+           };
+//Funcion que implementa el movimiento de la pieza hacia la derecha, siempre y cuando la columna hacia esa direccion no sea menor a 0(TABLERO).
+pieza.prototype.moverDerecha = function(){
+    if ((x-1)>0) { 
+        x--;
+        return true;
+    }
+    else { 
+        return false;
+    };
+};
+//Funcion que implementa el movimiento de la pieza hacia la izquierda, siempre que la posicion siguiente(COLUMNAS) no sea superior a 14(TABLERO).
+pieza.prototype.moverIzquierda = function(){
+    if ((x+1)<14) { 
+        x++;
+        return true;
+   }
+   else { 
+       return false;
+   };
+};
+
+pieza.prototype.rotarDreta = function () {
+            var formaNova = new Array();
+            for (var i=0;i<this.forma.length;i++) {
+                formaNova[i]=new Array();
+                for (var j=0;j<this.forma[i].length;j++) {
+                    formaNova[i][j]=this.forma[this.forma[i].length-1-j][i];
+                }
+            }
+            this.forma = formaNova;
+};
+pieza.prototype.rotarEsquerra = function(){
+    pieza.rotarDreta();
+    pieza.rotarDreta();
+    pieza.rotarDreta();
+}
+           
+var pa = GeneraPecaAleatoria();
+var p = new pieza(pa[0],pa[1]);
+//document.write(p.pintar());        
+
+//Funcions que se ejecutaran despues de leer el archivo HTML 
+window.onload = function(){ 
+
+         document.getElementById("original").innerHTML = p.pintar();
+        p.rotarDreta();
+    document.getElementById("rDreta").innerHTML = p.pintar();
+    p.rotarEsquerra();
+    document.getElementById("rEsquerra").innerHTML = p.pintar();
+};
