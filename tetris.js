@@ -29,56 +29,102 @@ var estadoActual = {
     statusTauler : 1,
     puntuacioJugador : 0,
     puntuacioMaxima: 0,
-    piezaActual: "new Object",
-    piezaSig: "new Object",
+    piezaActual: function(){
+
+    },
+    piezaSig: function(){
+
+    },
     contadorPieza: new Array(7),
-    interval: 1000,
+    interval: 500,
     //parametro interval modificado hace que el juego vaya mas rapido*.
     //var corre = setInterval(jugar, this.interval);
     
     iniciarJuego: function(){
-        this.actual[00] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[01] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[02] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[03] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[04] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[05] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[06] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[07] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[08] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[09] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[10] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[11] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[12] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[13] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[14] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[15] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[16] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[17] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[18] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[19] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[20] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[21] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[22] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[23] = [0,0,0,0,0,0,0,0,0,0],
-        this.actual[24] = [0,0,0,0,0,0,0,0,0,0];
+        
+        var prime = this.calcSigPieza();
+        this.piezaActual = new pieza(prime[0],prime[1], 0, 3);
+        prime = this.calcSigPieza();
+        this.piezaSig = new pieza(prime[0],prime[1], 0, 3);
+        
     },
     calcSigPieza: function(){
-        
+        return GeneraPecaAleatoria();
     },
     teclas: function(){
         
     },
-    mAuto: function(interval){
+    fijarPieza: function(){
         
+        for(var i = 0; i < this.actual.length; i++){
+            for(var j = 0; j < this.actual[i].length; j++){
+                if (this.actual[i][j] == "A"){
+                    this.actual[i][j] = "P";
+                }
+            }
+        }
+    },
+    borrarPieza: function(){
+        //alert("borrar pieza");
+        for(var i = 0; i < this.actual.length - 1; i++){
+            for( var j = 0; j < this.actual[i].length - 1; j++){
+                if(this.actual[i][j] == "A"){
+                    this.actual[i][j] = 0;
+                }
+            }
+        }
+    },
+    mAuto: function(){
+        
+        this.piezaActual.pintarMapa();
+        this.piezaActual.moverAbajo();
+        this.borrarPieza();
+        if(this.posBuena()){
+            //alert("pos buena");
+            this.piezaActual.pintarMapa();
+        }
+        else{
+            //alert("pos mala");
+            this.piezaActual.moverArriba();
+            this.piezaActual.pintarMapa();
+            this.fijarPieza();
+            this.piezaActual = this.piezaSig;
+            pa = this.calcSigPieza();
+            this.piezaSig = new pieza(pa[0], pa[1], 0, 3);
+        }
+        
+        
+    },
+    posBuena: function(){
+      for(var i = 0; i < this.piezaActual.forma.length; i++){
+          for(var j = 0; j < this.piezaActual.forma[i].length; j++){
+              if(this.piezaActual.forma[i][j] != 0){
+                  if( this.piezaActual.x + i < 0 || this.piezaActual.x + i > 24){
+                      return false;
+                  }
+                  if( this.piezaActual.y + j < 0 || this.piezaActual.y + j > 9){
+                      return false;
+                  }
+                  if(this.actual[this.piezaActual.x + i][this.piezaActual.y + j] != 0){
+                      return false;
+                  }
+              }
+          }
+      }
+        return true;
     },
     pintar: function(){
         var resul = "<table>";
-        for(var i = 0; i < 10; i++){
-            for(var k = 0; k < 25; k++){
+        for(var i = 0; i < 25; i++){
+            for(var k = 0; k < 10; k++){
                 if(this.actual[i][k] == 0){
                    resul += "0"; 
+                }else if(this.actual[i][k] == "A"){
+                    resul+= "A";
+                }else if(this.actual[i][k] == "P"){
+                    resul+= "P";
                 }
+                resul += " ";
             }
             resul += "<br>";
         }
@@ -87,32 +133,51 @@ var estadoActual = {
     }
 }
 
-var pieza = function(forma, color){ 
+var pieza = function(forma, color, x, y){ 
     this.forma = forma;
     this.color = color;
-    //this.x = x;  
-    //this.y = y;
+    this.x = x;  
+    this.y = y;
 };
 //Funcion que ereda de pieza y se encarga de printar en una tabla la forma de la pieza que se ha elegido.
-pieza.prototype.pintar = function(){
+pieza.prototype.pintarPieza = function(){
     var resultat = "<table border='1'>";
            for (var i = 0; i < this.forma.length;i++)
             { resultat = resultat + "<tr>"
                 for (var j = 0; j<this.forma[i].length;j++) 
                  { resultat = resultat + "<td>";
-                   if (this.forma[i][j]==1) { resultat=resultat+"X" }
-                    else { resultat = resultat + "-" };
+                   if (this.forma[i][j]==1) { 
+                       resultat=resultat+"X" 
+                   }
+                    else { 
+                        resultat = resultat + "0" 
+                    };
                    resultat = resultat + "</td>";
                    }
               resultat = resultat + "</tr>";
               }
             resultat = resultat + "</table>";
             return resultat;
-};              
+};
+
+pieza.prototype.pintarMapa = function(){
+    
+    for(var i = 0; i < 4; i++){
+        for(var j = 0; j < 4; j++){
+            if(this.forma[i][j] == 1){
+                estadoActual.actual[this.x + i][this.y + j] = "A";
+            }
+        }
+    }
+}
+
 //Funcion que se encarga de elegir la forma de la pieza aleatoriamente.
 function GeneraPecaAleatoria(){
     var peces = [
-                 [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],"amarilla"],
+                 [[[0,0,0,0],
+                   [0,1,1,0],
+                   [0,1,1,0],
+                   [0,0,0,0]],"amarilla"],
                  [[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],"lila"],
                  [[[0,0,0,0],[0,1,1,0],[1,1,0,0],[0,0,0,0]],"verde"],
                  [[[0,0,0,0],[0,1,1,0],[0,0,1,1],[0,0,0,0]],"rojo"],
@@ -123,10 +188,9 @@ function GeneraPecaAleatoria(){
            return peces[numeroAleatori];     
 }
 
-console.log(GeneraPecaAleatoria());
+//console.log(GeneraPecaAleatoria());
 //Funcion que hereda el objeto "pieza" para generar una tabla a partir de haber generado una pieza aleatoria con la funcion "GeneraPecaAleatoria()".
-       pieza.prototype.pintar = function()
-         { var resultat = "<table border='1'>";
+pieza.prototype.pintar = function(){ var resultat = "<table border='1'>";
            for (var i = 0; i < this.forma.length;i++)
             { resultat = resultat + "<tr>"
                 for (var j = 0; j<this.forma[i].length;j++) 
@@ -140,6 +204,7 @@ console.log(GeneraPecaAleatoria());
             resultat = resultat + "</table>";
             return resultat;
            };
+
 //Funcion que implementa el movimiento de la pieza hacia la derecha, siempre y cuando la columna hacia esa direccion no sea menor a 0(TABLERO).
 pieza.prototype.moverDerecha = function(){
     if ((x+1)>0) { 
@@ -150,6 +215,7 @@ pieza.prototype.moverDerecha = function(){
         return false;
     };
 };
+
 //Funcion que implementa el movimiento de la pieza hacia la izquierda, siempre que la posicion siguiente(COLUMNAS) no sea superior a 14(TABLERO).
 pieza.prototype.moverIzquierda = function(){
     if ((x-1)<10) { 
@@ -161,7 +227,7 @@ pieza.prototype.moverIzquierda = function(){
    };
 };
 
-pieza.prototype.rotarDreta = function () {
+pieza.prototype.rotarDerecha = function () {
             var formaNova = new Array();
             for (var i=0;i<this.forma.length;i++) {
                 formaNova[i]=new Array();
@@ -171,25 +237,52 @@ pieza.prototype.rotarDreta = function () {
             }
             this.forma = formaNova;
 };
-pieza.prototype.rotarEsquerra = function(p){
+
+pieza.prototype.rotarIzquierda = function(){
     p.rotarDreta();
     p.rotarDreta();
     p.rotarDreta();
 }
+
+pieza.prototype.moverAbajo = function(){
+    if ((this.x+1)<25) { 
+        this.x++;
+        return true;
+    }
+    else { 
+        return false;
+    }
+}
+
+pieza.prototype.moverArriba = function(){
+    this.x--;
+}
            
 var pa = GeneraPecaAleatoria();
-var p = new pieza(pa[0],pa[1]);
-
+var pa2 = GeneraPecaAleatoria();
+var primeraMapa = estadoActual.piezaActual();
+var segundaMapa = estadoActual.piezaSig();
+//primeraMapa.pintarMapa(primeraMapa);
+//var segunda = estadoActual.piezaSig;
 
 //document.write(p.pintar());        
 
 //Funcions que se ejecutaran despues de leer el archivo HTML 
 window.onload = function(){ 
 
-    document.getElementById("original").innerHTML = p.pintar();
-    p.rotarDreta();
-    document.getElementById("rDreta").innerHTML = p.pintar();
-    p.rotarEsquerra(p);
-    document.getElementById("rEsquerra").innerHTML = p.pintar();
+    //document.getElementById("original").innerHTML = primera.pintarPieza();
+    //primera.rotarDreta();
+    //document.getElementById("rDreta").innerHTML = primera.pintarPieza();
+    //primera.rotarEsquerra(primera);
+    //document.getElementById("rEsquerra").innerHTML = primera.pintarPieza();
+    //primera.pintarMapa(primera);
+    document.getElementById("piezaActual").innerHTML = estadoActual.piezaActual.pintarPieza();
+    document.getElementById("piezaSig").innerHTML = estadoActual.piezaSig.pintarPieza();
     document.getElementById("tetris").innerHTML = estadoActual.pintar();
+    //estadoActual.piezaActual.pintarMapa();
+    estadoActual.mAuto();
+
+    //document.getElementById("tetris").innerHTML = segunda.pintar();
 };
+estadoActual.iniciarJuego();
+var jugar = setInterval(window.onload, estadoActual.interval);
