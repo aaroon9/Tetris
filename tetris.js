@@ -27,7 +27,7 @@ var estadoActual = {
          [0,0,0,0,0,0,0,0,0,0],
         ],
     statusTauler : 1,
-    puntuacioJugador : 0,
+    puntuacioJugador: 0,
     puntuacioMaxima: 0,
     piezaActual: function(){
 
@@ -36,7 +36,9 @@ var estadoActual = {
 
     },
     contadorPieza: new Array(7),
-    interval: 500,
+    interval: 400,
+    level: 1,
+    lvlCont: 0,
     //parametro interval modificado hace que el juego vaya mas rapido*.
     //var corre = setInterval(jugar, this.interval);
     
@@ -51,9 +53,6 @@ var estadoActual = {
     calcSigPieza: function(){
         return GeneraPecaAleatoria();
     },
-    teclas: function(){
-        
-    },
     fijarPieza: function(){
         
         for(var i = 0; i < this.actual.length; i++){
@@ -67,7 +66,7 @@ var estadoActual = {
     borrarPieza: function(){
         //alert("borrar pieza");
         for(var i = 0; i < this.actual.length - 1; i++){
-            for( var j = 0; j < this.actual[i].length - 1; j++){
+            for( var j = 0; j < this.actual[i].length; j++){
                 if(this.actual[i][j] == "A"){
                     this.actual[i][j] = 0;
                 }
@@ -75,7 +74,7 @@ var estadoActual = {
         }
     },
     mAuto: function(){
-        
+        //this.puntuacioJugador+=10;
         this.piezaActual.pintarMapa();
         this.piezaActual.moverAbajo();
         this.borrarPieza();
@@ -85,9 +84,15 @@ var estadoActual = {
         }
         else{
             //alert("pos mala");
+            this.lvlCont++;
+            if(this.lvlCont % 10 == 0){
+                this.level++;
+            }
+            this.puntuacioJugador+=10;
             this.piezaActual.moverArriba();
             this.piezaActual.pintarMapa();
             this.fijarPieza();
+            this.comLinea();
             this.piezaActual = this.piezaSig;
             pa = this.calcSigPieza();
             this.piezaSig = new pieza(pa[0], pa[1], 0, 3);
@@ -99,19 +104,37 @@ var estadoActual = {
       for(var i = 0; i < this.piezaActual.forma.length; i++){
           for(var j = 0; j < this.piezaActual.forma[i].length; j++){
               if(this.piezaActual.forma[i][j] != 0){
-                  if( this.piezaActual.x + i < 0 || this.piezaActual.x + i > 24){
+                  if( (this.piezaActual.x + i < 0) || (this.piezaActual.x + i > 24)){
                       return false;
                   }
-                  if( this.piezaActual.y + j < 0 || this.piezaActual.y + j > 9){
+                  if( (this.piezaActual.y + j < 0) || (this.piezaActual.y + j > 9)){
                       return false;
-                  }
-                  if(this.actual[this.piezaActual.x + i][this.piezaActual.y + j] != 0){
+                  }           
+                  if(this.actual[(this.piezaActual.x + i)][(this.piezaActual.y + j)] != 0){
                       return false;
                   }
               }
           }
       }
         return true;
+    },
+    comLinea: function(){
+        var cont = 0;
+        for(var i = this.actual.length-1; i >= 0; i--){
+            for(var j = this.actual.length[i]; j >= 0; j--){
+                if(this.actual[i][j] == "P"){
+                    cont++;
+                    if(cont === 10){
+                        this.puntuacioJugador+=50;
+                        for(var k = i; k >= 0; k--){
+                            for(var l = this.actual.length[k]-1; l >=0; l--){
+                                this.actual[k][l] = this.actual[k-1][l];
+                            }
+                        }  
+                    }
+                }
+            }
+        }
     },
     pintar: function(){
         var resul = "<table>";
@@ -132,7 +155,7 @@ var estadoActual = {
         return resul;
     }
 }
-
+/*----Objecto Pieza----*/
 var pieza = function(forma, color, x, y){ 
     this.forma = forma;
     this.color = color;
@@ -163,7 +186,7 @@ pieza.prototype.pintarPieza = function(){
 pieza.prototype.pintarMapa = function(){
     
     for(var i = 0; i < 4; i++){
-        for(var j = 0; j < 4; j++){
+        for(var j = 0; j < 4 ; j++){
             if(this.forma[i][j] == 1){
                 estadoActual.actual[this.x + i][this.y + j] = "A";
             }
@@ -207,8 +230,8 @@ pieza.prototype.pintar = function(){ var resultat = "<table border='1'>";
 
 //Funcion que implementa el movimiento de la pieza hacia la derecha, siempre y cuando la columna hacia esa direccion no sea menor a 0(TABLERO).
 pieza.prototype.moverDerecha = function(){
-    if ((x+1)>0) { 
-        x++;
+    if ((this.y+1)>=0) { 
+        this.y++;
         return true;
     }
     else { 
@@ -218,8 +241,8 @@ pieza.prototype.moverDerecha = function(){
 
 //Funcion que implementa el movimiento de la pieza hacia la izquierda, siempre que la posicion siguiente(COLUMNAS) no sea superior a 14(TABLERO).
 pieza.prototype.moverIzquierda = function(){
-    if ((x-1)<10) { 
-        x--;
+    if ((this.y-1)<10) { 
+        this.y--;
         return true;
    }
    else { 
@@ -258,31 +281,92 @@ pieza.prototype.moverArriba = function(){
     this.x--;
 }
            
-var pa = GeneraPecaAleatoria();
-var pa2 = GeneraPecaAleatoria();
-var primeraMapa = estadoActual.piezaActual();
-var segundaMapa = estadoActual.piezaSig();
-//primeraMapa.pintarMapa(primeraMapa);
-//var segunda = estadoActual.piezaSig;
+//var pa = GeneraPecaAleatoria();
+//var pa2 = GeneraPecaAleatoria();
+//var primeraMapa = estadoActual.piezaActual();
+//var segundaMapa = estadoActual.piezaSig();
+var element = document.getElementById("all");
+document.onkeydown = teclas;
 
-//document.write(p.pintar());        
+
+//Funcio encarregada de llegir la direccio introduida per teclat
+//- Assigna la direccio introduida a una variable
+function teclas(e) {
+   var tecla = document.all ? e.which : e.key;
+    console.log(e);
+     estadoActual.borrarPieza();
+   //La direccio a dalt i a baix estan invertides!
+   if (tecla == "ArrowDown") {
+       estadoActual.puntuacioJugador++;
+        estadoActual.piezaActual.moverAbajo();
+            if(!estadoActual.posBuena()){
+                estadoActual.piezaActual.moverArriba();
+            }
+       
+   }
+   if (tecla == "ArrowRight") {
+        estadoActual.piezaActual.moverDerecha();
+            if(!estadoActual.posBuena()){
+                estadoActual.piezaActual.moverIzquierda();
+            }
+       
+    }
+   if (tecla === "ArrowLeft") {
+       estadoActual.piezaActual.moverIzquierda();
+       //console.log(estadoActual.posBuena());
+           if(!estadoActual.posBuena()){
+                estadoActual.piezaActual.moverDerecha();
+            }
+       
+   }
+   if (tecla == "ArrowUp") {
+       var cont = 0;
+            if(cont % 2 == 0){
+                estadoActual.piezaActual.rotarDerecha();
+                if(!estadoActual.posBuena()){
+                    if(estadoActual.piezaActual.y < 0){
+                        estadoActual.piezaActual.moverDerecha();
+                        estadoActual.piezaActual.rotarIzquierda();
+                    }else{
+                        estadoActual.piezaActual.moverIzquierda();
+                        estadoActual.piezaActual.rotarIzquierda();
+                    }
+                }
+                cont++;
+            }
+            else{
+                estadoActual.piezaActual.rotarIzquierda();
+                if(!estadoActual.posBuena()){
+                    if(estadoActual.piezaActual.y < 0){
+                        estadoActual.piezaActual.moverDerecha();
+                        estadoActual.piezaActual.rotarIzquierda();
+                    }else{
+                        estadoActual.piezaActual.moverIzquierda();
+                        estadoActual.piezaActual.rotarIzquierda();
+                    }
+                }
+                cont++;
+            }
+       
+   }
+    estadoActual.piezaActual.pintarMapa();
+}
+       
 
 //Funcions que se ejecutaran despues de leer el archivo HTML 
 window.onload = function(){ 
+    
+    estadoActual.iniciarJuego();
+    var jugar = setInterval(juego, estadoActual.interval);
 
-    //document.getElementById("original").innerHTML = primera.pintarPieza();
-    //primera.rotarDreta();
-    //document.getElementById("rDreta").innerHTML = primera.pintarPieza();
-    //primera.rotarEsquerra(primera);
-    //document.getElementById("rEsquerra").innerHTML = primera.pintarPieza();
-    //primera.pintarMapa(primera);
+};
+function juego(){
     document.getElementById("piezaActual").innerHTML = estadoActual.piezaActual.pintarPieza();
     document.getElementById("piezaSig").innerHTML = estadoActual.piezaSig.pintarPieza();
+    document.getElementById("pos").innerHTML = estadoActual.piezaActual.x;
+    document.getElementById("pos2").innerHTML = estadoActual.piezaActual.y;
+    document.getElementById("puntuacion").innerHTML = estadoActual.puntuacioJugador;
+    document.getElementById("level").innerHTML = estadoActual.level;
     document.getElementById("tetris").innerHTML = estadoActual.pintar();
-    //estadoActual.piezaActual.pintarMapa();
     estadoActual.mAuto();
-
-    //document.getElementById("tetris").innerHTML = segunda.pintar();
-};
-estadoActual.iniciarJuego();
-var jugar = setInterval(window.onload, estadoActual.interval);
+}
