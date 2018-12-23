@@ -120,20 +120,31 @@ var estadoActual = {
     },
     comLinea: function(){
         var cont = 0;
+        var linea = 0;
         for(var i = this.actual.length-1; i >= 0; i--){
-            for(var j = this.actual.length[i]; j >= 0; j--){
+            linea = i;
+            for(var j = this.actual[i].length -1; j >= 0; j--){
                 if(this.actual[i][j] == "P"){
                     cont++;
-                    if(cont === 10){
-                        this.puntuacioJugador+=50;
-                        for(var k = i; k >= 0; k--){
-                            for(var l = this.actual.length[k]-1; l >=0; l--){
-                                this.actual[k][l] = this.actual[k-1][l];
-                            }
-                        }  
+                }
+            }
+            if (cont == 10){
+                for(var j = 9; j >= 0; j--){
+                    this.actual[linea][j] = 0;
+                }
+                this.puntuacioJugador += 50;
+                for(var k = linea - 1; k >= 0; k--){
+                    for (var j = this.actual[k].length - 1; j >= 0; j--) {
+                        if (this.actual[k][j] == "P") {
+                            this.actual[k+1][j] = "P";
+                        }
+                        if (this.actual[k][j] == 0) {
+                            this.actual[k+1][j] = 0;
+                        }
                     }
                 }
             }
+            cont = 0;
         }
     },
     pintar: function(){
@@ -141,13 +152,36 @@ var estadoActual = {
         for(var i = 0; i < 25; i++){
             for(var k = 0; k < 10; k++){
                 if(this.actual[i][k] == 0){
-                   resul += "0"; 
-                }else if(this.actual[i][k] == "A"){
-                    resul+= "A";
+                   resul += "<img src='img/fondo.jpg' width=20; height=20;>"; 
+                }else if(this.actual[i][k] == "A"){               
+                    switch(this.piezaActual.color){
+                           case "amarilla":
+                               resul = resul + "<img src='img/amarillo.png' width=20; height=20;>";
+                               break;
+                           case "lila":
+                               resul = resul + "<img src='img/lila.png' width=20; height=20;>";
+                               break;
+                           case "verde":
+                               resul = resul + "<img src='img/verde.png' width=20; height=20;>";
+                               break;
+                           case "rojo":
+                               resul = resul + "<img src='img/rojo.jpg' width=20; height=20;>";
+                               break;
+                           case "azul":
+                               resul = resul + "<img src='img/azul.jpg' width=20; height=20;>";
+                               break;
+                           case "naranja":
+                               resul = resul + "<img src='img/naranja.png' width=20; height=20;>";
+                               break;
+                           case "rosa":
+                               resul = resul + "<img src='img/rosa.jpg' width=20; height=20;>";
+                               break;
+                       }
+                    //resul+= "A";
                 }else if(this.actual[i][k] == "P"){
-                    resul+= "P";
+                    resul+= "<img src='img/fichaFija.jpg' width=20; height=20;>";
                 }
-                resul += " ";
+                //resul += " ";
             }
             resul += "<br>";
         }
@@ -164,19 +198,43 @@ var pieza = function(forma, color, x, y){
 };
 //Funcion que ereda de pieza y se encarga de printar en una tabla la forma de la pieza que se ha elegido.
 pieza.prototype.pintarPieza = function(){
-    var resultat = "<table border='1'>";
+    var resultat = "<table>";
            for (var i = 0; i < this.forma.length;i++)
             { resultat = resultat + "<tr>"
                 for (var j = 0; j<this.forma[i].length;j++) 
                  { resultat = resultat + "<td>";
                    if (this.forma[i][j]==1) { 
-                       resultat=resultat+"X" 
+                       switch(this.color){
+                           case "amarilla":
+                               resultat = resultat + "<img src='img/amarillo.png' width=20; height=20;>";
+                               break;
+                           case "lila":
+                               resultat = resultat + "<img src='img/lila.png' width=20; height=20;>";
+                               break;
+                           case "verde":
+                               resultat = resultat + "<img src='img/verde.png' width=20; height=20;>";
+                               break;
+                           case "rojo":
+                               resultat = resultat + "<img src='img/rojo.jpg' width=20; height=20;>";
+                               break;
+                           case "azul":
+                               resultat = resultat + "<img src='img/azul.jpg' width=20; height=20;>";
+                               break;
+                           case "naranja":
+                               resultat = resultat + "<img src='img/naranja.png' width=20; height=20;>";
+                               break;
+                           case "rosa":
+                               resultat = resultat + "<img src='img/rosa.jpg' width=20; height=20;>";
+                               break;
+                       }
+                       //resultat=resultat+"X" 
                    }
                     else { 
-                        resultat = resultat + "0" 
+                        resultat = resultat + "<img src='img/blanco.png' width=20; height=20;>" 
                     };
                    resultat = resultat + "</td>";
                    }
+                
               resultat = resultat + "</tr>";
               }
             resultat = resultat + "</table>";
@@ -206,14 +264,14 @@ function GeneraPecaAleatoria(){
                  [[[0,0,0,0],[0,1,1,0],[0,0,1,1],[0,0,0,0]],"rojo"],
                  [[[0,1,0,0],[0,1,0,0],[0,1,1,0],[0,0,0,0]],"azul"],
                  [[[0,1,1,0],[0,1,0,0],[0,1,0,0],[0,0,0,0]],"naranja"],
-                 [[[0,0,0,0],[1,1,1,0],[0,1,0,0],[0,0,0,0]],"morado"] ]
+                 [[[0,0,0,0],[1,1,1,0],[0,1,0,0],[0,0,0,0]],"rosa"] ]
            var numeroAleatori = Math.round(Math.random()*6);                      
            return peces[numeroAleatori];     
 }
 
 //console.log(GeneraPecaAleatoria());
 //Funcion que hereda el objeto "pieza" para generar una tabla a partir de haber generado una pieza aleatoria con la funcion "GeneraPecaAleatoria()".
-pieza.prototype.pintar = function(){ var resultat = "<table border='1'>";
+/*pieza.prototype.pintar = function(){ var resultat = "<table border='1'>";
            for (var i = 0; i < this.forma.length;i++)
             { resultat = resultat + "<tr>"
                 for (var j = 0; j<this.forma[i].length;j++) 
@@ -226,7 +284,7 @@ pieza.prototype.pintar = function(){ var resultat = "<table border='1'>";
               }
             resultat = resultat + "</table>";
             return resultat;
-           };
+           };*/
 
 //Funcion que implementa el movimiento de la pieza hacia la derecha, siempre y cuando la columna hacia esa direccion no sea menor a 0(TABLERO).
 pieza.prototype.moverDerecha = function(){
@@ -358,13 +416,14 @@ window.onload = function(){
     
     estadoActual.iniciarJuego();
     var jugar = setInterval(juego, estadoActual.interval);
+    //var jugar = setInterval(juego, 1000);
 
 };
 function juego(){
     document.getElementById("piezaActual").innerHTML = estadoActual.piezaActual.pintarPieza();
     document.getElementById("piezaSig").innerHTML = estadoActual.piezaSig.pintarPieza();
-    document.getElementById("pos").innerHTML = estadoActual.piezaActual.x;
-    document.getElementById("pos2").innerHTML = estadoActual.piezaActual.y;
+    //document.getElementById("pos").innerHTML = estadoActual.piezaActual.x;
+    //document.getElementById("pos2").innerHTML = estadoActual.piezaActual.y;
     document.getElementById("puntuacion").innerHTML = estadoActual.puntuacioJugador;
     document.getElementById("level").innerHTML = estadoActual.level;
     document.getElementById("tetris").innerHTML = estadoActual.pintar();
