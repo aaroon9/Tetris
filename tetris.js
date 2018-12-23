@@ -87,6 +87,8 @@ var estadoActual = {
             this.lvlCont++;
             if(this.lvlCont % 10 == 0){
                 this.level++;
+                this.puntuacioJugador += 20;
+                this.interval -= 150;
             }
             this.puntuacioJugador+=10;
             this.piezaActual.moverArriba();
